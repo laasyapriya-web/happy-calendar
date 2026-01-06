@@ -1,9 +1,8 @@
-/* src/index.css - FOR TAILWIND v3 */
+/* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Add CSS reset to fix layout */
 * {
   margin: 0;
   padding: 0;
@@ -13,4 +12,43 @@
 html, body, #root {
   width: 100%;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Mobile-specific fixes */
+@media (max-width: 640px) {
+  /* Prevent text overflow */
+  .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Better touch targets */
+  button {
+    min-height: 36px;
+    min-width: 36px;
+  }
+  
+  /* Calendar day fixes */
+  .aspect-square {
+    min-height: 40px !important;
+    min-width: 40px !important;
+  }
+  
+  /* Improve text readability in calendar */
+  .text-\[5px\] {
+    font-size: 5px !important;
+    line-height: 1.2;
+  }
+  
+  .text-\[10px\] {
+    font-size: 10px !important;
+  }
+}
+
+/* Ensure modals don't overflow */
+.modal-container {
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
 }

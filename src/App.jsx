@@ -258,15 +258,25 @@ export default function HappyCalendar() {
     const filteredMoments = filterMoments();
 
     for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(<div key={`empty-${i}`} className="aspect-square" />);
+      days.push(<div key={`empty-${i}`} className="aspect-square min-h-0" />);
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dateKey = formatDateKey(year, month, day);
-      const hasHappyMoment = happyMoments[dateKey];
+      const happyMoment = happyMoments[dateKey];
+      const hasHappyMoment = !!happyMoment;
       const matchesSearch = !searchQuery || filteredMoments[dateKey];
       const color = getCardColor(day);
       const actualColor = darkMode ? { bg: color.bgDark, border: color.borderDark } : { bg: color.bg, border: color.border };
+      
+      // Get first few words of the message for preview
+      const getMessagePreview = (text) => {
+        if (!text) return '';
+        // Take first 15-20 characters
+        const preview = text.trim();
+        if (preview.length <= 15) return preview;
+        return preview.substring(0, 15) + '...';
+      };
       
       days.push(
         <button
@@ -277,13 +287,35 @@ export default function HappyCalendar() {
             borderColor: actualColor.border,
             opacity: searchQuery && !matchesSearch ? 0.3 : 1,
           }}
-          className="aspect-square rounded-2xl border-2 transition-all duration-200 flex flex-col items-start justify-start p-3 hover:shadow-lg hover:scale-105"
+          className="aspect-square min-h-0 min-w-0 rounded-md border flex flex-col items-center justify-start p-0.5 md:p-1 transition-transform duration-150 hover:scale-102 relative"
         >
-          <span className="text-lg font-semibold mb-1" style={{ color: darkMode ? '#E5E5E5' : '#333333' }}>{day}</span>
+          <span className="text-[10px] font-medium mb-0.5 md:text-xs" style={{ color: darkMode ? '#E5E5E5' : '#333333' }}>
+            {day}
+          </span>
+          
           {hasHappyMoment ? (
-            <Heart className="w-4 h-4 mt-auto" style={{ color: darkMode ? theme.primaryDark : theme.primary, fill: darkMode ? theme.primaryDark : theme.primary }} />
+            <div className="flex-1 flex flex-col items-center justify-center w-full px-0.5">
+              <Heart className="w-2 h-2 mb-0.5 md:w-3 md:h-3" style={{ 
+                color: darkMode ? theme.primaryDark : theme.primary, 
+                fill: darkMode ? theme.primaryDark : theme.primary 
+              }} />
+              <div className="text-[5px] md:text-[6px] text-center leading-tight w-full overflow-hidden" 
+                   style={{ color: darkMode ? '#D1D5DB' : '#4B5563' }}>
+                {getMessagePreview(happyMoment)}
+              </div>
+            </div>
           ) : (
-            <span className="text-xs italic mt-auto" style={{ color: '#9CA3AF' }}>Click to add...</span>
+            <div className="flex-1 flex items-center justify-center">
+              <span className="text-[5px] text-gray-400 md:text-[6px]">
+                +
+              </span>
+            </div>
+          )}
+          
+          {/* Small indicator dot for long messages */}
+          {hasHappyMoment && happyMoment.length > 20 && (
+            <div className="absolute bottom-0.5 right-0.5 w-1 h-1 rounded-full" 
+                 style={{ backgroundColor: darkMode ? theme.primaryDark : theme.primary }} />
           )}
         </button>
       );
@@ -291,14 +323,14 @@ export default function HappyCalendar() {
 
     return (
       <>
-        <div className="grid grid-cols-7 gap-4 mb-4">
+        <div className="grid grid-cols-7 gap-0.5 mb-1 md:gap-1 md:mb-2">
           {weekDays.map(day => (
-            <div key={day} className="text-center font-semibold text-base" style={{ color: darkMode ? '#9CA3AF' : '#6B7280' }}>
+            <div key={day} className="text-center font-medium text-[9px] md:text-xs" style={{ color: darkMode ? '#9CA3AF' : '#6B7280' }}>
               {day}
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-4">
+        <div className="grid grid-cols-7 gap-0.5 md:gap-1">
           {days}
         </div>
       </>
@@ -309,85 +341,90 @@ export default function HappyCalendar() {
     'July', 'August', 'September', 'October', 'November', 'December'];
 
   return (
-    <div className="min-h-screen p-8" style={{ backgroundColor: darkMode ? theme.bgDark : theme.bg, transition: 'background-color 0.3s' }}>
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-end gap-2 mb-4">
+    <div className="min-h-screen p-2 md:p-4 lg:p-6" style={{ backgroundColor: darkMode ? theme.bgDark : theme.bg, transition: 'background-color 0.3s' }}>
+      <div className="max-w-full mx-auto px-1 md:px-2">
+        {/* Top Action Buttons - Mobile Optimized */}
+        <div className="flex justify-end gap-1 mb-3 md:gap-2 md:mb-4">
           <button
             onClick={() => setShowAchievements(!showAchievements)}
-            className="p-3 rounded-xl transition-all duration-200 hover:shadow-lg"
+            className="p-1.5 rounded-md md:p-2 md:rounded-lg"
             style={{ backgroundColor: darkMode ? '#3A3A3A' : 'white', color: darkMode ? theme.primaryDark : theme.primary }}
             title="Achievements"
           >
-            <Award className="w-5 h-5" />
+            <Award className="w-3 h-3 md:w-4 md:h-4" />
           </button>
           <button
             onClick={() => setShowThemes(!showThemes)}
-            className="p-3 rounded-xl transition-all duration-200 hover:shadow-lg"
+            className="p-1.5 rounded-md md:p-2 md:rounded-lg"
             style={{ backgroundColor: darkMode ? '#3A3A3A' : 'white', color: darkMode ? theme.primaryDark : theme.primary }}
             title="Themes"
           >
-            <Palette className="w-5 h-5" />
+            <Palette className="w-3 h-3 md:w-4 md:h-4" />
           </button>
           <button
             onClick={() => setShowSearch(!showSearch)}
-            className="p-3 rounded-xl transition-all duration-200 hover:shadow-lg"
+            className="p-1.5 rounded-md md:p-2 md:rounded-lg"
             style={{ backgroundColor: darkMode ? '#3A3A3A' : 'white', color: darkMode ? theme.primaryDark : theme.primary }}
             title="Search"
           >
-            <Search className="w-5 h-5" />
+            <Search className="w-3 h-3 md:w-4 md:h-4" />
           </button>
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className="p-3 rounded-xl transition-all duration-200 hover:shadow-lg"
+            className="p-1.5 rounded-md md:p-2 md:rounded-lg"
             style={{ backgroundColor: darkMode ? '#3A3A3A' : 'white', color: darkMode ? theme.primaryDark : theme.primary }}
             title="Toggle Dark Mode"
           >
-            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {darkMode ? <Sun className="w-3 h-3 md:w-4 md:h-4" /> : <Moon className="w-3 h-3 md:w-4 md:h-4" />}
           </button>
         </div>
 
+        {/* Themes Panel */}
         {showThemes && (
-          <div className="mb-4 p-4 rounded-xl" style={{ backgroundColor: darkMode ? '#3A3A3A' : 'white' }}>
-            <h3 className="font-bold mb-3" style={{ color: darkMode ? theme.primaryDark : theme.primary }}>Choose Theme</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="mb-3 p-2 rounded-lg md:p-3 md:rounded-xl" style={{ backgroundColor: darkMode ? '#3A3A3A' : 'white' }}>
+            <h3 className="font-bold mb-2 text-xs md:text-sm" style={{ color: darkMode ? theme.primaryDark : theme.primary }}>Choose Theme</h3>
+            <div className="grid grid-cols-2 gap-1 md:grid-cols-4 md:gap-2">
               {Object.entries(themes).map(([key, t]) => (
                 <button
                   key={key}
                   onClick={() => setCurrentTheme(key)}
-                  className="p-3 rounded-lg border-2 transition-all hover:scale-105"
+                  className="p-1.5 rounded border text-left md:p-2"
                   style={{
                     backgroundColor: darkMode ? t.bgDark : t.bg,
                     borderColor: currentTheme === key ? (darkMode ? t.primaryDark : t.primary) : 'transparent',
                   }}
                 >
-                  <div className="font-semibold" style={{ color: darkMode ? t.primaryDark : t.primary }}>{t.name}</div>
+                  <div className="font-medium text-[10px] md:text-xs" style={{ color: darkMode ? t.primaryDark : t.primary }}>{t.name}</div>
                 </button>
               ))}
             </div>
           </div>
         )}
 
+        {/* Achievements Panel */}
         {showAchievements && (
-          <div className="mb-4 p-4 rounded-xl" style={{ backgroundColor: darkMode ? '#3A3A3A' : 'white' }}>
-            <h3 className="font-bold mb-3" style={{ color: darkMode ? theme.primaryDark : theme.primary }}>Achievements ({getAchievements().length}/{achievements.length})</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="mb-3 p-2 rounded-lg md:p-3 md:rounded-xl" style={{ backgroundColor: darkMode ? '#3A3A3A' : 'white' }}>
+            <h3 className="font-bold mb-2 text-xs md:text-sm" style={{ color: darkMode ? theme.primaryDark : theme.primary }}>
+              Achievements ({getAchievements().length}/{achievements.length})
+            </h3>
+            <div className="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-2">
               {achievements.map((ach) => {
                 const earned = getAchievements().some(e => e.id === ach.id);
                 return (
                   <div
                     key={ach.id}
-                    className="p-3 rounded-lg border-2"
+                    className="p-1.5 rounded border md:p-2"
                     style={{
                       backgroundColor: earned ? (darkMode ? theme.cardColors[0].bgDark : theme.cardColors[0].bg) : (darkMode ? '#2A2A2A' : '#F5F5F5'),
                       borderColor: earned ? (darkMode ? theme.cardColors[0].borderDark : theme.cardColors[0].border) : 'transparent',
                       opacity: earned ? 1 : 0.5,
                     }}
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{ach.icon}</span>
-                      <div>
-                        <div className="font-semibold" style={{ color: darkMode ? '#E5E5E5' : '#333333' }}>{ach.name}</div>
-                        <div className="text-sm" style={{ color: darkMode ? '#9CA3AF' : '#6B7280' }}>{ach.description}</div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm md:text-base">{ach.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-[10px] md:text-xs truncate" style={{ color: darkMode ? '#E5E5E5' : '#333333' }}>{ach.name}</div>
+                        <div className="text-[8px] md:text-[10px] text-gray-500 truncate">{ach.description}</div>
                       </div>
                     </div>
                   </div>
@@ -397,14 +434,15 @@ export default function HappyCalendar() {
           </div>
         )}
 
+        {/* Search Bar */}
         {showSearch && (
-          <div className="mb-4">
+          <div className="mb-3">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search your happy moments..."
-              className="w-full p-4 rounded-xl border-2 focus:outline-none"
+              className="w-full p-2 rounded-lg border text-xs md:p-3 md:text-sm"
               style={{
                 backgroundColor: darkMode ? '#3A3A3A' : 'white',
                 borderColor: darkMode ? '#4A4A4A' : '#E0E0E0',
@@ -414,41 +452,43 @@ export default function HappyCalendar() {
           </div>
         )}
 
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <Star className="w-10 h-10" style={{ color: '#FFD700', fill: '#FFD700' }} />
-            <h1 className="text-5xl font-bold" style={{ color: darkMode ? theme.primaryDark : theme.primary }}>
+        {/* Header */}
+        <div className="text-center mb-3 md:mb-4">
+          <div className="flex items-center justify-center gap-1 mb-1 md:gap-2">
+            <Star className="w-4 h-4 md:w-5 md:h-5" style={{ color: '#FFD700', fill: '#FFD700' }} />
+            <h1 className="text-lg font-bold md:text-xl" style={{ color: darkMode ? theme.primaryDark : theme.primary }}>
               Happy Calendar
             </h1>
-            <Star className="w-10 h-10" style={{ color: '#FFD700', fill: '#FFD700' }} />
+            <Star className="w-4 h-4 md:w-5 md:h-5" style={{ color: '#FFD700', fill: '#FFD700' }} />
           </div>
-          <p className="text-lg mb-4" style={{ color: darkMode ? '#9CA3AF' : '#6B7280' }}>
+          <p className="text-xs mb-2 text-gray-600 dark:text-gray-400 md:text-sm">
             What made you happy today?
           </p>
           
-          <div className="flex gap-4 justify-center flex-wrap">
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-1 justify-center md:gap-2">
             <button
               onClick={handleExport}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg border-2"
+              className="flex items-center gap-0.5 px-2 py-1 rounded-md border text-[10px] md:gap-1 md:px-3 md:py-1.5 md:text-xs"
               style={{ backgroundColor: 'transparent', color: darkMode ? theme.primaryDark : theme.primary, borderColor: theme.button }}
             >
-              <Download className="w-5 h-5" />
-              Export Data
+              <Download className="w-2.5 h-2.5 md:w-3 md:h-3" />
+              <span>Export</span>
             </button>
             
             <button
               onClick={handleExportImage}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg border-2"
+              className="flex items-center gap-0.5 px-2 py-1 rounded-md border text-[10px] md:gap-1 md:px-3 md:py-1.5 md:text-xs"
               style={{ backgroundColor: 'transparent', color: darkMode ? theme.primaryDark : theme.primary, borderColor: theme.button }}
             >
-              <Share2 className="w-5 h-5" />
-              Export Image
+              <Share2 className="w-2.5 h-2.5 md:w-3 md:h-3" />
+              <span>Image</span>
             </button>
             
-            <label className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg cursor-pointer border-2"
+            <label className="flex items-center gap-0.5 px-2 py-1 rounded-md border text-[10px] md:gap-1 md:px-3 md:py-1.5 md:text-xs cursor-pointer"
               style={{ backgroundColor: 'transparent', color: darkMode ? theme.primaryDark : theme.primary, borderColor: theme.button }}>
-              <Upload className="w-5 h-5" />
-              Import Data
+              <Upload className="w-2.5 h-2.5 md:w-3 md:h-3" />
+              <span>Import</span>
               <input
                 type="file"
                 accept=".json"
@@ -459,69 +499,75 @@ export default function HappyCalendar() {
           </div>
         </div>
 
-        <div ref={calendarRef} className="rounded-3xl shadow-xl p-8 mb-6" style={{ backgroundColor: darkMode ? '#2A2A2A' : 'white' }}>
-          <div className="flex items-center justify-between mb-8">
+        {/* Calendar Container */}
+        <div ref={calendarRef} className="rounded-lg shadow-sm p-2 mb-3 md:rounded-xl md:p-3 md:mb-4" style={{ backgroundColor: darkMode ? '#2A2A2A' : 'white' }}>
+          {/* Month Navigation */}
+          <div className="flex items-center justify-between mb-2 md:mb-3">
             <button
               onClick={handlePrevMonth}
-              className="px-8 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg flex items-center gap-2"
+              className="px-2 py-1 rounded-md text-[10px] md:px-3 md:py-1.5 md:text-xs flex items-center gap-0.5"
               style={{ backgroundColor: theme.button, color: theme.buttonText }}
             >
-              <ChevronLeft className="w-5 h-5" />
-              Previous
+              <ChevronLeft className="w-2.5 h-2.5 md:w-3 md:h-3" />
+              <span className="hidden sm:inline">Previous</span>
+              <span className="sm:hidden">Prev</span>
             </button>
             
-            <h2 className="text-4xl font-bold" style={{ color: darkMode ? theme.primaryDark : theme.primary }}>
+            <h2 className="text-sm font-bold text-center md:text-base" style={{ color: darkMode ? theme.primaryDark : theme.primary }}>
               {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
             </h2>
             
             <button
               onClick={handleNextMonth}
-              className="px-8 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg flex items-center gap-2"
+              className="px-2 py-1 rounded-md text-[10px] md:px-3 md:py-1.5 md:text-xs flex items-center gap-0.5"
               style={{ backgroundColor: theme.button, color: theme.buttonText }}
             >
-              Next
-              <ChevronRight className="w-5 h-5" />
+              <span className="hidden sm:inline">Next</span>
+              <span className="sm:hidden">Next</span>
+              <ChevronRight className="w-2.5 h-2.5 md:w-3 md:h-3" />
             </button>
           </div>
 
+          {/* Calendar Grid */}
           {renderCalendar()}
         </div>
       </div>
 
+      {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center p-4 z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
-          <div className="rounded-2xl shadow-2xl p-8 max-w-lg w-full border-2" style={{ 
+        <div className="fixed inset-0 flex items-center justify-center p-2 z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
+          <div className="rounded-lg p-3 max-w-full w-full max-h-[80vh] overflow-y-auto border md:rounded-xl md:p-4" style={{ 
             backgroundColor: darkMode ? '#2A2A2A' : 'white',
             borderColor: darkMode ? theme.cardColors[2].borderDark : theme.cardColors[2].border 
           }}>
-            <h3 className="text-2xl font-bold mb-2" style={{ color: darkMode ? theme.primaryDark : theme.primary }}>
+            <h3 className="text-sm font-bold mb-1 md:text-base" style={{ color: darkMode ? theme.primaryDark : theme.primary }}>
               {selectedDate}
             </h3>
-            <p className="mb-4" style={{ color: darkMode ? '#9CA3AF' : '#6B7280' }}>
+            <p className="text-xs mb-2 text-gray-600 dark:text-gray-400 md:text-sm">
               What made you happy today?
             </p>
             <textarea
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
               placeholder="Write your happy moment here..."
-              className="w-full h-48 p-4 border-2 rounded-xl focus:outline-none resize-none"
+              className="w-full h-24 p-2 rounded border text-xs md:h-32 md:p-3 md:text-sm"
               style={{ 
                 borderColor: darkMode ? theme.cardColors[2].borderDark : theme.cardColors[2].border,
                 backgroundColor: darkMode ? theme.cardColors[2].bgDark : theme.cardColors[2].bg,
                 color: darkMode ? '#E5E5E5' : '#333333',
               }}
             />
-            <div className="flex gap-4 mt-6">
+            <div className="flex gap-2 mt-3">
               <button
                 onClick={handleSave}
-                className="flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:shadow-lg"
+                className="flex-1 px-3 py-1.5 rounded-md text-xs font-medium md:px-4 md:py-2 md:text-sm"
                 style={{ backgroundColor: theme.button, color: theme.buttonText }}
               >
-                Save Moment
+                Save
               </button>
               <button
                 onClick={() => setModalOpen(false)}
-                className="flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:shadow-lg"
+                className="flex-1 px-3 py-1.5 rounded-md text-xs font-medium md:px-4 md:py-2 md:text-sm"
                 style={{ backgroundColor: darkMode ? '#3A3A3A' : '#F7F7F7', color: darkMode ? '#E5E5E5' : '#6B7280' }}
               >
                 Cancel

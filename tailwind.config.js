@@ -6,7 +6,12 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      scale: {
+        '102': '1.02',
+        '105': '1.05',
+      },
+    },
   },
   plugins: [],
 }
